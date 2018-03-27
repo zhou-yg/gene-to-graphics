@@ -65,13 +65,19 @@
       </el-tab-pane>
     </el-tabs>
     <NewGeneDialog ref="ngd" @submit="settingSubmit"/>
+    <GraphicsDialog ref="gd" />
   </div>
 </template>
 
 <script>
 import NewGeneDialog from './components/NewGeneDialog.vue'
+import GraphicsDialog from './components/GraphicsDialog.vue'
 
 export default {
+  components: {
+    NewGeneDialog,
+    GraphicsDialog,
+  },
   name: 'app',
   data () {
     return {
@@ -79,9 +85,6 @@ export default {
       geneList: [],
       graphicsList: [],
     };
-  },
-  components: {
-    NewGeneDialog,
   },
   mounted () {
     this.getGeneList();
@@ -152,7 +155,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -161,5 +164,14 @@ export default {
 }
 .header {
   margin-bottom: 10px;
+}
+ul {
+  margin: 0;
+  padding: 0;
+}
+ul li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 </style>
