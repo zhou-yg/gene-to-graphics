@@ -46,7 +46,7 @@
 import pick from 'lodash/pick';
 
 export default {
-  name: 'HelloWorld',
+  name: 'NewGeneDialog',
   props: {
     msg: String
   },

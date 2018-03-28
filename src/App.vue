@@ -65,7 +65,7 @@
       </el-tab-pane>
     </el-tabs>
     <NewGeneDialog ref="ngd" @submit="settingSubmit"/>
-    <GraphicsDialog ref="gd" />
+    <GraphicsDialog ref="gd" :genes="geneList" @submit="submitGraphics" />
   </div>
 </template>
 
@@ -98,6 +98,7 @@ export default {
         this.geneList = [].concat(res.data).map(obj => {
           return {
             ...obj,
+            name: decodeURIComponent(obj.name),
             id: obj._id,
             calTypeText: calMap[obj.calType],
             outputTypeText: outputMap[obj.outputType],
@@ -112,6 +113,17 @@ export default {
           ...obj,
           id: obj._id,
           nameText: decodeURIComponent(obj.name),
+          showData: (obj.showData || []).map(graphics => {
+            return {
+              ...graphics,
+              genes: Object.keys(graphics.genes).map(prop => {
+                const geneName = graphics.genes[prop]
+                return {
+                  [prop]: this.geneList.filter(gen => gen.name === geneName)[0],
+                }
+              }).reduce((p, c) => Object.assign(p, c), {}),
+            };
+          }),
         }));
       });
     },
@@ -142,6 +154,11 @@ export default {
       });
     },
     updateGraphics (id) {
+      const graphicsOne = this.graphicsList.filter(g => g.id === id)[0];
+      this.$refs.gd.show({
+        id,
+        showData: graphicsOne.showData || [],
+      });
     },
     deleteGraphics (id) {
       this.$api.sms.graphics('deleteOne', {_id: id}).then(res => {
@@ -151,6 +168,9 @@ export default {
     settingSubmit () {
       this.getGeneList()
     },
+    submitGraphics () {
+      this.getGraphicsList();
+    }
   },
 }
 </script>

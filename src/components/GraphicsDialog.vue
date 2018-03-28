@@ -13,12 +13,30 @@
           <li @click="refresh" >刷新</li>
         </ul>
       </header>
-      <header>
+      <header v-if="editArr.length > 0">
         属性：
+        <div class="properties">
+          <p v-for="edit in editArr">
+            {{edit.name}}：
+            <el-radio-group :value="edit.mode" @input="v => changeData(edit, 'mode', v)" >
+              <el-radio disabled :label="0">
+                <el-input :value="edit.inputValue" @input="v => changeData(edit, 'input', v)" @blur="refresh" />
+              </el-radio>
+              <el-radio disabled :label="1">
+                <el-select :value="edit.selectGene.name" @input="v => changeData(edit, 'gene', v)">
+                  <el-option v-for="g in genes" :value="g.name" :label="g.name" />
+                </el-select>
+              </el-radio>
+            </el-radio-group>
+          </p>
+        </div>
       </header>
       <div id="svg">
 
       </div>
+      <footer>
+        <el-button type="primary" @click="save">保存</el-button>
+      </footer>
     </div>
 
   </el-dialog>
@@ -29,66 +47,105 @@ import pick from 'lodash/pick';
 import Raphael from 'raphael';
 
 class G {
-  constructor () {
-    this.type = '';
-    this.attrs = {};
-    this.genes = {};
+  constructor (initial) {
+    this.type = initial.type || '';
+    this.attrs = initial.attrs || {};
+    this.genes = initial.genes || {};
   }
   getAttrs () {
     const attrKeys = Object.keys(this.attrs);
     return attrKeys.map(k => {
       const gene = this.genes[k];
       return {
-        [k]: gene ? gene.getExpress() : this.attrs[k],
+        [k]: gene ? gene.getExpress ? gene.getExpress() : 0 : this.attrs[k],
       }
     }).reduce((p, c) => Object.assign(p, c), {});
   }
 }
 
 class Rect extends G {
-  constructor () {
-    super();
+  constructor (initial = {}) {
+    super(initial);
     this.type = 'rect'
-    this.attrs = {
-      x: 20,
-      y: 20,
-      w: 80,
-      h: 50,
-      fill: '#000000',
-    };
+    if (!initial.attrs) {
+      this.attrs = {
+        x: 20,
+        y: 20,
+        w: 80,
+        h: 50,
+        fill: '#000000',
+      };
+    }
+    console.log(this);
   }
 }
 
 export default {
-  name: 'HelloWorld',
+  name: 'GraphicsDialog',
   props: {
-    msg: String
+    genes: {
+      type: Array,
+      default () {
+        return [];
+      },
+    },
   },
   data () {
     return {
-      isShow: true,
+      id: null,
+      isShow: false,
       showData: [
       ],
+      editIndex: null,
     }
   },
   mounted () {
     this.$nextTick(() => {
-      this.r = Raphael('svg')
     });
   },
   computed: {
+    editArr () {
+      const sd = this.showData[this.editIndex] || {};
+      const arr = Object.keys(sd.attrs || {}).map(k => {
+        const g = sd.genes[k];
+        const value = sd.attrs[k];
+        return {
+          name: k,
+          mode: g ? 1 : 0,
+          inputValue: g ? '' : value,
+          selectGene: g || {},
+        }
+      });
+      return arr;
+    },
   },
   methods: {
     show (config = {}) {
       this.isShow = true;
-      Object.assign(this.shoData, config)
+      config.showData = config.showData.map(originData => {
+        switch (originData.type) {
+          case 'rect':
+            return new Rect(originData);
+            break;
+        }
+      }).filter(_ => _);
+      this.id = config.id;
+      this.showData = config.showData;
+
+      this.$nextTick(() => {
+        if (!this.r) {
+          this.r = Raphael('svg');
+        }
+        this.refresh();
+      });
     },
     insertRect () {
       this.showData.push(new Rect());
       this.refresh();
     },
     refresh () {
-      this.showData.forEach(obj => {
+      this.r.clear();
+      this.showData.forEach((obj, i) => {
         var g;
         switch (obj.type) {
           case 'rect':
@@ -100,7 +157,63 @@ export default {
         g.attr({
           fill: obj.getAttrs().fill,
         });
-      })
+        g.click(() => {
+          this.editIndex = i;
+        });
+      });
+      this.showData = this.showData.slice();
+    },
+    changeData(obj, prop, value) {
+      const graphics = this.showData[this.editIndex];
+
+      value = isNaN(Number(value)) ? value : Number(value);
+
+      switch (prop) {
+        case 'mode':
+          if (value === 0) {
+            delete graphics.genes[obj.name];
+          }
+          if (value === 1) {
+          }
+          break;
+        case 'input':
+          graphics.attrs[obj.name] = value;
+          delete graphics.genes[obj.name];
+          break;
+        case 'gene':
+          graphics.genes[obj.name] = this.genes.filter(g => g.name === value)[0];
+          break;
+        default:
+      }
+      this.refresh();
+    },
+    save () {
+      this.isShow = false;
+      const sd = this.showData.map(o => {
+        return {
+          ...o,
+          genes: Object.keys(o.genes).map(prop => {
+            return {
+              [prop]: o.genes[prop].name
+            };
+          }).reduce((p, c) => Object.assign(p, c), {}),
+        };
+      });
+      this.$api.sms.graphics('updateOne', {
+        _id: this.id,
+        _doc: {
+          $set: {
+            showData: sd,
+          }
+        }
+      }).then(res => {
+        if (res.success) {
+          this.$message.success('编辑图形成功');
+          this.$emit('submit');
+        } else {
+          this.$message.success('编辑图形失败');
+        }
+      });
     },
   },
 }
@@ -123,6 +236,14 @@ export default {
 .graphics-dialog header {
   margin-bottom: 10px;
 }
+.graphics-dialog header .properties{
+  vertical-align: top;
+  display: inline-block;
+}
+.graphics-dialog header .properties > p{
+  margin-top: 0;
+}
+
 .graphics-dialog header ul {
   display: inline-block;
 }
@@ -136,6 +257,10 @@ export default {
 .graphics-dialog header li:hover {
   background-color: #999;
   color: #fff;
+}
+
+.graphics-dialog footer{
+  margin-top: 15px;
 }
 
 #svg {
