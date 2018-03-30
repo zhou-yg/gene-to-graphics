@@ -72,6 +72,7 @@
 <script>
 import NewGeneDialog from './components/NewGeneDialog.vue'
 import GraphicsDialog from './components/GraphicsDialog.vue'
+import Gene from './components/Gene';
 
 export default {
   components: {
@@ -93,17 +94,7 @@ export default {
   methods: {
     getGeneList () {
       this.$api.sms.gene('find').then(res => {
-        const calMap = ['加法', '减法'];
-        const outputMap = ['数字', '颜色'];
-        this.geneList = [].concat(res.data).map(obj => {
-          return {
-            ...obj,
-            name: decodeURIComponent(obj.name),
-            id: obj._id,
-            calTypeText: calMap[obj.calType],
-            outputTypeText: outputMap[obj.outputType],
-          };
-        });
+        this.geneList = [].concat(res.data).map(obj => new Gene(obj));
       });
     },
     getGraphicsList () {
