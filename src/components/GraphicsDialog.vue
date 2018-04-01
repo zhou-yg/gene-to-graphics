@@ -253,6 +253,7 @@ export default {
   padding: 4px 10px;
   display: inline-block;
   cursor: pointer;
+  user-select:none;
 }
 .graphics-dialog header li:hover {
   background-color: #999;

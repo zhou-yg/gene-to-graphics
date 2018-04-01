@@ -17,10 +17,20 @@
           <el-table-column
             prop="leftGeneValue"
             label="左侧" >
+            <template slot-scope="scope">
+              {{scope.row.leftGeneValue}}
+              ~
+              {{scope.row.leftGeneValueMax}}
+            </template>
           </el-table-column>
           <el-table-column
             prop="rightGeneValue"
             label="右侧" >
+            <template slot-scope="scope">
+              {{scope.row.rightGeneValue}}
+              ~
+              {{scope.row.rightGeneValueMax}}
+            </template>
           </el-table-column>
           <el-table-column
             prop="calTypeText"

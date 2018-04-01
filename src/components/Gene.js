@@ -34,18 +34,28 @@ export default class Gene {
       rightGeneValue: Number(obj.rightGeneValue),
     });
   }
+  getRandomValue () {
+    const g1 = Math.abs(this.leftGeneValueMax - this.leftGeneValue);
+    const g2 = Math.abs(this.rightGeneValueMax - this.rightGeneValue);
+
+    return [
+      parseInt(g1 + Math.random() * this.leftGeneValue),
+      parseInt(g2 + Math.random() * this.rightGeneValue)
+    ];
+  }
   getExpress () {
     var result = 0;
+    const [l, r] = this.getRandomValue();
     switch (this.outputType) {
       case 1:
-        return combineColors(numToHex(this.leftGeneValue), numToHex(this.rightGeneValue));
+        return combineColors(numToHex(l), numToHex(r));
     }
 
     switch (this.calType) {
       case 0:
-        return this.leftGeneValue + this.rightGeneValue;
+        return l + r;
       case 1:
-        return this.leftGeneValue - this.rightGeneValue;
+        return l - r;
     }
   }
 }

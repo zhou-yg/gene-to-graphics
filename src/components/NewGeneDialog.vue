@@ -13,10 +13,15 @@
       </p>
       <p>
         左侧：
-        <el-input v-model="leftGeneValue" placeholder="此处为最大值"/>
-        &nbsp;
+        <el-input v-model="leftGeneValue" placeholder="此处为最小值"/>
+        ~
+        <el-input v-model="leftGeneValueMax" placeholder="此处为最大值" />
+      </p>
+      <p>
         右侧：
-        <el-input v-model="rightGeneValue" placeholder="此处为最大值" />
+        <el-input v-model="rightGeneValue" placeholder="此处为最小值"/>
+        ~
+        <el-input v-model="rightGeneValueMax" placeholder="此处为最大值" />
       </p>
       <p>
         计算：
@@ -56,7 +61,9 @@ export default {
       id: 0,
       name: '',
       leftGeneValue: 0,
+      leftGeneValueMax: 1,
       rightGeneValue: 0,
+      rightGeneValueMax: 1,
       calType: 0,
       outputType: 0,
     }
@@ -76,9 +83,19 @@ export default {
     },
     submit () {
       this.isShow = false;
-      var arg = pick(this, ['id', 'name', 'leftGeneValue', 'rightGeneValue', 'calType', 'outputType']);
+      var arg = pick(this, ['id', 'name', 'leftGeneValue', 'leftGeneValueMax', 'rightGeneValue','rightGeneValueMax', 'calType', 'outputType']);
       arg.leftGeneValue = parseInt(arg.leftGeneValue);
+      arg.leftGeneValueMax = parseInt(arg.leftGeneValueMax);
       arg.rightGeneValue = parseInt(arg.rightGeneValue);
+      arg.rightGeneValueMax = parseInt(arg.rightGeneValueMax);
+
+      if (arg.leftGeneValueMax < arg.leftGeneValue) {
+        arg.leftGeneValueMax = arg.leftGeneValue;
+      }
+      if (arg.rightGeneValueMax < arg.rightGeneValueMax) {
+        arg.rightGeneValueMax = arg.rightGeneValue;
+      }
+
       arg.calType = parseInt(arg.calType);
       arg.outputType = parseInt(arg.outputType);
 
