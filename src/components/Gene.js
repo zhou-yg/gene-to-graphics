@@ -39,11 +39,14 @@ export default class Gene {
     const g2 = Math.abs(this.rightGeneValueMax - this.rightGeneValue);
 
     return [
-      parseInt(g1 + Math.random() * this.leftGeneValue),
-      parseInt(g2 + Math.random() * this.rightGeneValue)
+      parseInt(g1 * Math.random() + this.leftGeneValue),
+      parseInt(g2 * Math.random() + this.rightGeneValue)
     ];
   }
   getExpress () {
+    if (this.resultCache && this.resultCache !== 0) {
+      return this.resultCache;
+    }
     var result = 0;
     const [l, r] = this.getRandomValue();
     switch (this.outputType) {
@@ -53,9 +56,14 @@ export default class Gene {
 
     switch (this.calType) {
       case 0:
-        return l + r;
+        result = l + r;
       case 1:
-        return l - r;
+        result = l - r;
     }
+    this.resultCache = result;
+    setTimeout(() => {
+      this.resultCache = null;
+    },0);
+    return result;
   }
 }

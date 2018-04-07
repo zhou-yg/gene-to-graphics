@@ -9,14 +9,15 @@
         图形：
         <ul>
           <li @click="insertRect" >rect</li>
-          <li>circle</li>
+          <li @click="insertCircle">circle</li>
           <li @click="refresh" >刷新</li>
+          <li @click="deleteOne" style="color:red;" >删除</li>
         </ul>
       </header>
       <header v-if="editArr.length > 0">
         属性：
         <div class="properties">
-          <p v-for="edit in editArr">
+          <p v-for="edit in editArr" >
             {{edit.name}}：
             <el-radio-group :value="edit.mode" @input="v => changeData(edit, 'mode', v)" >
               <el-radio disabled :label="0">
@@ -66,7 +67,7 @@ class G {
 class Rect extends G {
   constructor (initial = {}) {
     super(initial);
-    this.type = 'rect'
+    this.type = Rect.name;
     if (!initial.attrs) {
       this.attrs = {
         x: 20,
@@ -76,7 +77,20 @@ class Rect extends G {
         fill: '#000000',
       };
     }
-    console.log(this);
+  }
+}
+class Circle extends G {
+  constructor (initial = {}) {
+    super(initial);
+    this.type = Circle.name;
+    if (!initial.attrs) {
+      this.attrs = {
+        x: 100,
+        y: 100,
+        r: 30,
+        fill: '#000000',
+      };
+    }
   }
 }
 
@@ -143,14 +157,30 @@ export default {
       this.showData.push(new Rect());
       this.refresh();
     },
+    insertCircle () {
+      this.showData.push(new Circle());
+      this.refresh();
+    },
+    deleteOne () {
+      this.showData = this.showData.filter((_, i) => i !== this.editIndex);
+      this.refresh();
+    },
     refresh () {
       this.r.clear();
       this.showData.forEach((obj, i) => {
         var g;
-        switch (obj.type) {
-          case 'rect':
-            let {x,y,w,h} = obj.getAttrs();
-            g = this.r.rect(x,y,w,h);
+        switch (obj.constructor) {
+          case Rect:
+            (() => {
+              let {x,y,w,h} = obj.getAttrs();
+              g = this.r.rect(x,y,w,h);
+            })();
+            break;
+          case Circle:
+            (() => {
+              let {x,y,r} = obj.getAttrs();
+              g = this.r.circle(x,y,r);
+            })();
             break;
           default:
         }
@@ -174,6 +204,7 @@ export default {
             delete graphics.genes[obj.name];
           }
           if (value === 1) {
+
           }
           break;
         case 'input':

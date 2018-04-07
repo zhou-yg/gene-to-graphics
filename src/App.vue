@@ -43,7 +43,8 @@
           </el-table-column>
 
           <el-table-column
-            label="操作" >
+            label="操作"
+            width="180px">
             <template slot-scope="scope">
               <el-button @click="updateGene(scope.row.id)">修改</el-button>
               <el-button @click="deleteGene(scope.row.id)">删除</el-button>
@@ -65,7 +66,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="300px">
+            width="180px">
             <template slot-scope="scope">
               <el-button @click="updateGraphics(scope.row.id)">编辑</el-button>
               <el-button @click="deleteGraphics(scope.row.id)">删除</el-button>
