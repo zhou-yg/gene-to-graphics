@@ -138,9 +138,10 @@ export default {
       this.isShow = true;
       config.showData = config.showData.map(originData => {
         switch (originData.type) {
-          case 'rect':
+          case Rect.name:
             return new Rect(originData);
-            break;
+          case Circle.name:
+            return new Circle(originData);
         }
       }).filter(_ => _);
       this.id = config.id;
