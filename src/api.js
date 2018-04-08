@@ -30,6 +30,17 @@ export default {
             name: {
               type: 'string',
             },
+            // showData: {
+            //   type: 'object',
+            // },
+          },
+        },
+        trunk: {
+          method: 'POST',
+          properties: {
+            name: {
+              type: 'string',
+            },
           },
         },
       }, {

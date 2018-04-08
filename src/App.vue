@@ -53,7 +53,7 @@
 
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="图形列表" name="b" >
+      <el-tab-pane label="基本图库" name="b" >
         <header class="header">
           <el-button @click="newGraphics" size="small">新建图形</el-button>
         </header>
@@ -70,6 +70,24 @@
             <template slot-scope="scope">
               <el-button @click="updateGraphics(scope.row.id)">编辑</el-button>
               <el-button @click="deleteGraphics(scope.row.id)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-tab-pane>
+      <el-tab-pane label="身体图形" name="c" >
+        <el-table
+          border
+          :data="trunkList">
+          <el-table-column
+            prop="nameText"
+            label="名称" >
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            width="180px">
+            <template slot-scope="scope">
+              <el-button @click="renameTrunk(scope.row.id)">删除</el-button>
+              <el-button @click="deleteTrunk(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -96,6 +114,7 @@ export default {
       activeName: 'a',
       geneList: [],
       graphicsList: [],
+      trunkList: [],
     };
   },
   mounted () {
@@ -110,7 +129,6 @@ export default {
     },
     getGraphicsList () {
       this.$api.sms.graphics('find').then(res => {
-        console.log(res);
         this.graphicsList = [].concat(res.data).map(obj => ({
           ...obj,
           id: obj._id,
@@ -127,6 +145,11 @@ export default {
             };
           }),
         }));
+      });
+    },
+    getTrunkList () {
+      this.$api.sms.trunk('find').then(res => {
+        this.trunkList = res.data;
       });
     },
     newGene () {
@@ -172,7 +195,22 @@ export default {
     },
     submitGraphics () {
       this.getGraphicsList();
-    }
+    },
+    renameTrunk (id) {
+      this.$prompt('新的图形名称', '重命名', {
+        confirmButtonText: '保存',
+        cancelButtonText: '取消',
+        inputPattern: /[\w\W]+/,
+        inputErrorMessage: '请输入名称',
+      }).then(({value}) => {
+        this.$api.sms.graph('updateOne', {name: value}).then(res => {
+          this.getGraphList();
+        });
+      }).catch(e => {
+      });
+    },
+    deleteTrunk (id) {
+    },
   },
 }
 </script>
