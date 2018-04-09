@@ -68,8 +68,9 @@
             label="操作"
             width="180px">
             <template slot-scope="scope">
+              <el-button type="danger" @click="deleteGraphics(scope.row.id)">删除</el-button>
               <el-button @click="updateGraphics(scope.row.id)">编辑</el-button>
-              <el-button @click="deleteGraphics(scope.row.id)">删除</el-button>
+              <el-button @click="outputGraphics(scope.row.id)">导出</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -86,7 +87,7 @@
             label="操作"
             width="180px">
             <template slot-scope="scope">
-              <el-button @click="renameTrunk(scope.row.id)">删除</el-button>
+              <el-button @click="renameTrunk(scope.row.id)">重命名</el-button>
               <el-button @click="deleteTrunk(scope.row.id)">删除</el-button>
             </template>
           </el-table-column>
@@ -133,17 +134,7 @@ export default {
           ...obj,
           id: obj._id,
           nameText: decodeURIComponent(obj.name),
-          showData: (obj.showData || []).map(graphics => {
-            return {
-              ...graphics,
-              genes: Object.keys(graphics.genes).map(prop => {
-                const geneName = graphics.genes[prop]
-                return {
-                  [prop]: this.geneList.filter(gen => gen.name === geneName)[0],
-                }
-              }).reduce((p, c) => Object.assign(p, c), {}),
-            };
-          }),
+          showData: this.$refs.gd.initShowData(obj.showData || []),
         }));
       });
     },
@@ -162,7 +153,14 @@ export default {
         inputPattern: /[\w\W]+/,
         inputErrorMessage: '请输入名称',
       }).then(({value}) => {
-        this.$api.sms.graphics('insertOne', {name: value}).then(res => {
+        this.$api.sms.graphics('insertOne', {
+          _id: id,
+          _doc: {
+            $set: {
+              name: value,
+            },
+          },
+        }).then(res => {
           this.getGraphicsList();
         });
       }).catch(e => {
@@ -190,6 +188,19 @@ export default {
         this.getGeneList();
       });
     },
+    outputGraphics (id) {
+      const graphicsOne = this.graphicsList.filter(g => g.id === id)[0];
+      const sd = graphicsOne.showData;
+
+      const outputData = sd.map(g => g.outputData());
+
+      this.$api.sms.trunk('insertOne', {
+        name: `${graphicsOne.nameText}-${Date.now()}`,
+        g: outputData,
+      }).then(res => {
+        this.getGeneList();
+      });
+    },
     settingSubmit () {
       this.getGeneList()
     },
@@ -203,7 +214,14 @@ export default {
         inputPattern: /[\w\W]+/,
         inputErrorMessage: '请输入名称',
       }).then(({value}) => {
-        this.$api.sms.graph('updateOne', {name: value}).then(res => {
+        this.$api.sms.trunk('updateOne', {
+          _id: id,
+          _doc: {
+            $set: {
+              name: value,
+            },
+          },
+        }).then(res => {
           this.getGraphList();
         });
       }).catch(e => {

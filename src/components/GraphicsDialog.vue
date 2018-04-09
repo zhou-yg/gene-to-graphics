@@ -62,6 +62,12 @@ class G {
       }
     }).reduce((p, c) => Object.assign(p, c), {});
   }
+  output () {
+    return {
+      type: this.type,
+      ...this.getAttrs(),
+    }
+  }
 }
 
 class Rect extends G {
@@ -136,14 +142,7 @@ export default {
   methods: {
     show (config = {}) {
       this.isShow = true;
-      config.showData = config.showData.map(originData => {
-        switch (originData.type) {
-          case Rect.name:
-            return new Rect(originData);
-          case Circle.name:
-            return new Circle(originData);
-        }
-      }).filter(_ => _);
+      config.showData = this.initShowData(config.showData);
       this.id = config.id;
       this.showData = config.showData;
 
@@ -153,6 +152,26 @@ export default {
         }
         this.refresh();
       });
+    },
+    initShowData (data = []) {
+      return data.map(originData => {
+        originData = {
+          ...originData,
+          genes: Object.keys(originData.genes).map(prop => {
+            const geneName = originData.genes[prop]
+            return {
+              [prop]: this.genes.filter(gen => gen.name === geneName)[0],
+            }
+          }).reduce((p, c) => Object.assign(p, c), {}),
+        };
+
+        switch (originData.type) {
+          case Rect.name:
+            return new Rect(originData);
+          case Circle.name:
+            return new Circle(originData);
+        }
+      }).filter(_ => _);
     },
     insertRect () {
       this.showData.push(new Rect());
