@@ -66,7 +66,7 @@
           </el-table-column>
           <el-table-column
             label="操作"
-            width="180px">
+            width="270px">
             <template slot-scope="scope">
               <el-button type="danger" @click="deleteGraphics(scope.row.id)">删除</el-button>
               <el-button @click="updateGraphics(scope.row.id)">编辑</el-button>
@@ -80,15 +80,15 @@
           border
           :data="trunkList">
           <el-table-column
-            prop="nameText"
+            prop="name"
             label="名称" >
           </el-table-column>
           <el-table-column
             label="操作"
-            width="180px">
+            width="250px">
             <template slot-scope="scope">
-              <el-button @click="renameTrunk(scope.row.id)">重命名</el-button>
-              <el-button @click="deleteTrunk(scope.row.id)">删除</el-button>
+              <el-button @click="renameTrunk(scope.row._id)">重命名</el-button>
+              <el-button @click="deleteTrunk(scope.row._id)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -121,6 +121,7 @@ export default {
   mounted () {
     this.getGeneList();
     this.getGraphicsList();
+    this.getTrunkList();
   },
   methods: {
     getGeneList () {
@@ -140,7 +141,7 @@ export default {
     },
     getTrunkList () {
       this.$api.sms.trunk('find').then(res => {
-        this.trunkList = res.data;
+        this.trunkList = [].concat(res.data);
       });
     },
     newGene () {
@@ -192,13 +193,13 @@ export default {
       const graphicsOne = this.graphicsList.filter(g => g.id === id)[0];
       const sd = graphicsOne.showData;
 
-      const outputData = sd.map(g => g.outputData());
+      const outputData = sd.map(g => g.output());
 
       this.$api.sms.trunk('insertOne', {
         name: `${graphicsOne.nameText}-${Date.now()}`,
         g: outputData,
       }).then(res => {
-        this.getGeneList();
+        this.getTrunkList();
       });
     },
     settingSubmit () {
