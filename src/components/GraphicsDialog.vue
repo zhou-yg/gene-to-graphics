@@ -32,7 +32,7 @@
           </p>
         </div>
       </header>
-      <div id="svg">
+      <div id="svg" ref="svg">
 
       </div>
       <footer>
@@ -46,6 +46,7 @@
 <script>
 import pick from 'lodash/pick';
 import Raphael from 'raphael';
+import * as PIXI from 'pixi.js';
 
 class G {
   constructor (initial) {
@@ -147,8 +148,14 @@ export default {
       this.showData = config.showData;
 
       this.$nextTick(() => {
-        if (!this.r) {
-          this.r = Raphael('svg');
+        if (!this.app) {
+          // this.r = Raphael('svg');
+          const app = new PIXI.Application(600, 400, {
+            antialias: true,
+            backgroundColor: 0xffffff,
+          });
+          this.app = app;
+          this.$refs.svg.appendChild(app.view);
         }
         this.refresh();
       });
@@ -186,30 +193,34 @@ export default {
       this.refresh();
     },
     refresh () {
-      this.r.clear();
+      this.app.stage.removeChildren();
       this.showData.forEach((obj, i) => {
-        var g;
+        var g = new PIXI.Graphics();
+        this.app.stage.addChild(g);
+        g.interactive = true;
+        g.on('click', () => {
+          this.editIndex = i;
+        });
+        let {fill} = obj.getAttrs();
+        fill = parseInt(String(fill).replace('#', '0x'));
+        g.beginFill(fill, 1);
         switch (obj.constructor) {
           case Rect:
             (() => {
               let {x,y,w,h} = obj.getAttrs();
-              g = this.r.rect(x,y,w,h);
+              g.drawRect(x,y,w,h);
+              g.endFill();
             })();
             break;
           case Circle:
             (() => {
               let {x,y,r} = obj.getAttrs();
-              g = this.r.circle(x,y,r);
+              g.drawCircle(x,y,r);
+              g.endFill();
             })();
             break;
           default:
         }
-        g.attr({
-          fill: obj.getAttrs().fill,
-        });
-        g.click(() => {
-          this.editIndex = i;
-        });
       });
       this.showData = this.showData.slice();
     },

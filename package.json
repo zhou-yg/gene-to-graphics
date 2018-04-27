@@ -10,8 +10,9 @@
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.2.2",
+    "pixi.js": "^4.7.3",
     "raphael": "^2.2.7",
-    "simple-mongo-server": "^1.0.0",
+    "simple-mongo-server": "^1.0.2",
     "vue": "^2.5.13"
   },
   "devDependencies": {
