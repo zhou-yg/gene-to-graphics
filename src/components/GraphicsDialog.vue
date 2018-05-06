@@ -47,59 +47,7 @@
 import pick from 'lodash/pick';
 import Raphael from 'raphael';
 import * as PIXI from 'pixi.js';
-
-class G {
-  constructor (initial) {
-    this.type = initial.type || '';
-    this.attrs = initial.attrs || {};
-    this.genes = initial.genes || {};
-  }
-  getAttrs () {
-    const attrKeys = Object.keys(this.attrs);
-    return attrKeys.map(k => {
-      const gene = this.genes[k];
-      return {
-        [k]: gene ? gene.getExpress ? gene.getExpress() : 0 : this.attrs[k],
-      }
-    }).reduce((p, c) => Object.assign(p, c), {});
-  }
-  output () {
-    return {
-      type: this.type,
-      ...this.getAttrs(),
-    }
-  }
-}
-
-class Rect extends G {
-  constructor (initial = {}) {
-    super(initial);
-    this.type = Rect.name;
-    if (!initial.attrs) {
-      this.attrs = {
-        x: 20,
-        y: 20,
-        w: 80,
-        h: 50,
-        fill: '#000000',
-      };
-    }
-  }
-}
-class Circle extends G {
-  constructor (initial = {}) {
-    super(initial);
-    this.type = Circle.name;
-    if (!initial.attrs) {
-      this.attrs = {
-        x: 100,
-        y: 100,
-        r: 30,
-        fill: '#000000',
-      };
-    }
-  }
-}
+import {G, Circle, Rect} from './G';
 
 export default {
   name: 'GraphicsDialog',

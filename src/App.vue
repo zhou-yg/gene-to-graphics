@@ -229,6 +229,11 @@ export default {
       });
     },
     deleteTrunk (id) {
+      this.$api.sms.trunk('deleteOne', {
+        _id: id,
+      }).then(res => {
+        this.getGraphList();
+      });
     },
   },
 }
