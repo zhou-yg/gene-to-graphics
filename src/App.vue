@@ -232,7 +232,7 @@ export default {
       this.$api.sms.trunk('deleteOne', {
         _id: id,
       }).then(res => {
-        this.getGraphList();
+        this.getTrunkList();
       });
     },
   },
