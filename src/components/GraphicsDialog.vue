@@ -49,6 +49,8 @@ import Raphael from 'raphael';
 import * as PIXI from 'pixi.js';
 import {G, Circle, Rect} from './G';
 
+window.PIXI = PIXI
+
 export default {
   name: 'GraphicsDialog',
   props: {
@@ -95,6 +97,8 @@ export default {
       this.id = config.id;
       this.showData = config.showData;
 
+      console.log(this.showData);
+
       this.$nextTick(() => {
         if (!this.app) {
           // this.r = Raphael('svg');
@@ -114,8 +118,12 @@ export default {
           ...originData,
           genes: Object.keys(originData.genes).map(prop => {
             const geneName = originData.genes[prop]
+
+            if (!geneName) {
+              return {};
+            }
             return {
-              [prop]: this.genes.filter(gen => gen.name === geneName)[0],
+              [prop]: this.genes.filter(gen => gen.name === prop)[0],
             }
           }).reduce((p, c) => Object.assign(p, c), {}),
         };
@@ -146,7 +154,7 @@ export default {
         var g = new PIXI.Graphics();
         this.app.stage.addChild(g);
         g.interactive = true;
-        g.on('click', () => {
+        g.on('mousedown', () => {
           this.editIndex = i;
         });
         let {fill} = obj.getAttrs();
@@ -183,7 +191,6 @@ export default {
             delete graphics.genes[obj.name];
           }
           if (value === 1) {
-
           }
           break;
         case 'input':
@@ -203,6 +210,7 @@ export default {
         return {
           ...o,
           genes: Object.keys(o.genes).map(prop => {
+            console.log(o.genes, prop);
             return {
               [prop]: o.genes[prop].name
             };

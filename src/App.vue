@@ -75,7 +75,7 @@
           </el-table-column>
         </el-table>
       </el-tab-pane>
-      <el-tab-pane label="身体图形" name="c" >
+      <el-tab-pane label="组成图形" name="c" >
         <el-table
           border
           :data="trunkList">
@@ -223,7 +223,7 @@ export default {
             },
           },
         }).then(res => {
-          this.getGraphList();
+          this.getTrunkList();
         });
       }).catch(e => {
       });
