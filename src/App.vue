@@ -76,22 +76,7 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="组成图形" name="c" >
-        <el-table
-          border
-          :data="trunkList">
-          <el-table-column
-            prop="name"
-            label="名称" >
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="250px">
-            <template slot-scope="scope">
-              <el-button @click="renameTrunk(scope.row._id)">重命名</el-button>
-              <el-button @click="deleteTrunk(scope.row._id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <Trunk />
       </el-tab-pane>
     </el-tabs>
     <NewGeneDialog ref="ngd" @submit="settingSubmit"/>
@@ -103,11 +88,13 @@
 import NewGeneDialog from './components/NewGeneDialog.vue'
 import GraphicsDialog from './components/GraphicsDialog.vue'
 import Gene from './components/Gene';
+import Trunk from './components/Trunk.vue';
 
 export default {
   components: {
     NewGeneDialog,
     GraphicsDialog,
+    Trunk,
   },
   name: 'app',
   data () {
