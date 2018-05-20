@@ -10,6 +10,7 @@
         <ul>
           <li @click="insertRect" >rect</li>
           <li @click="insertCircle">circle</li>
+          <li @click="insertPolygon">polygon</li>
           <li @click="refresh" >刷新</li>
           <li @click="deleteOne" style="color:red;" >删除</li>
         </ul>
@@ -17,7 +18,7 @@
       <header v-if="editArr.length > 0">
         属性：
         <div class="properties">
-          <p v-for="edit in editArr" >
+          <p v-for="(edit, i) in editArr" :key="`edit` + i">
             {{edit.name}}：
             <el-radio-group :value="edit.mode" @input="v => changeData(edit, 'mode', v)" >
               <el-radio disabled :label="0">
@@ -25,7 +26,7 @@
               </el-radio>
               <el-radio disabled :label="1">
                 <el-select :value="edit.selectGene.name" @input="v => changeData(edit, 'gene', v)">
-                  <el-option v-for="g in genes" :value="g.name" :label="g.name" />
+                  <el-option v-for="g in genes" :key="g.name" :value="g.name" :label="g.name" />
                 </el-select>
               </el-radio>
             </el-radio-group>
@@ -44,10 +45,8 @@
 </template>
 
 <script>
-import pick from 'lodash/pick';
-import Raphael from 'raphael';
 import * as PIXI from 'pixi.js';
-import {G, Circle, Rect} from './G';
+import {Circle, Rect, Polygon} from './G';
 
 window.PIXI = PIXI
 
@@ -104,7 +103,7 @@ export default {
           // this.r = Raphael('svg');
           const app = new PIXI.Application(600, 400, {
             antialias: true,
-            backgroundColor: 0xffffff,
+            backgroundColor: 0xceb2a8,
           });
           this.app = app;
           this.$refs.svg.appendChild(app.view);
@@ -114,6 +113,7 @@ export default {
     },
     initShowData (data = []) {
       return data.map(originData => {
+        // console.log(JSON.stringify(originData));
         originData = {
           ...originData,
           genes: Object.keys(originData.genes).map(prop => {
@@ -142,6 +142,10 @@ export default {
     },
     insertCircle () {
       this.showData.push(new Circle());
+      this.refresh();
+    },
+    insertPolygon () {
+      this.showData.push(new Polygon());
       this.refresh();
     },
     deleteOne () {
@@ -189,8 +193,6 @@ export default {
         case 'mode':
           if (value === 0) {
             delete graphics.genes[obj.name];
-          }
-          if (value === 1) {
           }
           break;
         case 'input':

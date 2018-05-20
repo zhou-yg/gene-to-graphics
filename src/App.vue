@@ -142,12 +142,7 @@ export default {
         inputErrorMessage: '请输入名称',
       }).then(({value}) => {
         this.$api.sms.graphics('insertOne', {
-          _id: id,
-          _doc: {
-            $set: {
-              name: value,
-            },
-          },
+          name: value,
         }).then(res => {
           this.getGraphicsList();
         });
@@ -173,7 +168,7 @@ export default {
     },
     deleteGraphics (id) {
       this.$api.sms.graphics('deleteOne', {_id: id}).then(res => {
-        this.getGeneList();
+        this.getGraphicsList();
       });
     },
     outputGraphics (id) {

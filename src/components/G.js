@@ -9,7 +9,7 @@ export class G {
     return attrKeys.map(k => {
       const gene = this.genes[k];
       return {
-        [k]: gene ? gene.getExpress ? gene.getExpress() : 0 : this.attrs[k],
+        [k]: gene ? gene.express ? gene.express : 0 : this.attrs[k],
       }
     }).reduce((p, c) => Object.assign(p, c), {});
   }
@@ -17,6 +17,18 @@ export class G {
     return {
       type: this.type,
       ...this.getAttrs(),
+    }
+  }
+}
+
+export class Polygon extends G {
+  constructor (initial = {}) {
+    super(initial);
+    if (!initial.attrs) {
+      this.attrs = {
+        pointers: [],
+        fill: '#000000',
+      }
     }
   }
 }

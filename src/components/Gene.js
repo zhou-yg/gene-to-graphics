@@ -1,3 +1,5 @@
+import pick from 'lodash/pick';
+
 const calMap = ['加法', '减法'];
 const outputMap = ['数字', '颜色'];
 
@@ -25,13 +27,29 @@ function combineColors (hex1, hex2) {
 
 export default class Gene {
   constructor (obj) {
-    Object.assign(this, obj, {
-      name: decodeURIComponent(obj.name),
+    var name;
+    try {
+      name = decodeURIComponent(obj.name);
+    } catch (e) {
+      name = obj.name;
+    }
+
+    this.setting = {
+      absolute: obj.absolute || null,
+      name,
       id: obj._id,
       calTypeText: calMap[obj.calType],
       outputTypeText: outputMap[obj.outputType],
       leftGeneValue: Number(obj.leftGeneValue),
       rightGeneValue: Number(obj.rightGeneValue),
+    };
+
+    Object.assign(this, obj, this.setting);
+  }
+  clone (absoluteValue) {
+    return new Gene({
+      absolute: absoluteValue,
+      ...pick(this, Object.keys(this.setting)),
     });
   }
   getRandomValue () {
@@ -43,7 +61,14 @@ export default class Gene {
       parseInt(g2 * Math.random() + this.rightGeneValue)
     ];
   }
-  getExpress () {
+  clearAbsolute () {
+    this.absolute = null;
+  }
+  get express () {
+    if (this.absolute !== null) {
+      return this.absolute;
+    }
+
     if (this.resultCache && this.resultCache !== 0) {
       return this.resultCache;
     }

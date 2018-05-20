@@ -4,7 +4,6 @@ import * as PIXI from 'pixi.js';
 export default function trunkToPixi(data) {
   const graphics = [].concat(data).map(({g}) => {
     return g.map(g => {
-      console.log('g:', g);
       switch(g.type) {
         case Rect.name:
           return new Rect({
