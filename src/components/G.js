@@ -8,6 +8,15 @@ export class G {
     const attrKeys = Object.keys(this.attrs);
     return attrKeys.map(k => {
       const gene = this.genes[k];
+
+      if (Array.isArray(this.attrs[k])) {
+        let geneArr = gene || [];
+        return {
+          [k]: this.attrs[k].map((v, i) => {
+            return geneArr[i] ? (geneArr[i].express || 0) : v;
+          }),
+        };
+      }
       return {
         [k]: gene ? gene.express ? gene.express : 0 : this.attrs[k],
       }
@@ -24,9 +33,10 @@ export class G {
 export class Polygon extends G {
   constructor (initial = {}) {
     super(initial);
+    this.type = Polygon.name;
     if (!initial.attrs) {
       this.attrs = {
-        pointers: [],
+        pointers: [20, 20, 100, 20, 100, 100, 20, 20],
         fill: '#000000',
       }
     }

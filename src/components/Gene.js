@@ -68,7 +68,6 @@ export default class Gene {
     if (this.absolute !== null) {
       return this.absolute;
     }
-
     if (this.resultCache && this.resultCache !== 0) {
       return this.resultCache;
     }
@@ -82,8 +81,10 @@ export default class Gene {
     switch (this.calType) {
       case 0:
         result = l + r;
+        break;
       case 1:
         result = l - r;
+        break;
     }
     this.resultCache = result;
     setTimeout(() => {

@@ -15,10 +15,31 @@
           <li @click="deleteOne" style="color:red;" >删除</li>
         </ul>
       </header>
-      <header v-if="editArr.length > 0">
+      <header v-if="editArr.single > 0 || editArr.multi.length > 0">
         属性：
         <div class="properties">
-          <p v-for="(edit, i) in editArr" :key="`edit` + i">
+          <div v-for="(childEditArr, i) in editArr.multi" :key="`multiEdit` + i" :ref="childEditArr[0].name" >
+            <p v-for="(childEdit, ii) in childEditArr" :key="`childEdit${childEdit.inputValue}` + i + '' + ii" >
+              {{ii+1}}
+              <el-radio-group :value="childEdit.mode" @input="v => changeData(childEdit, 'mode', v)" >
+                <el-radio disabled :label="0">
+                  <el-input :value="childEdit.inputValue" @input="v => changeData(childEdit, 'input', v)" @blur="refresh" />
+                </el-radio>
+                <el-radio disabled :label="1">
+                  <el-select :value="childEdit.selectGene.name" @input="v => changeData(childEdit, 'gene', v)">
+                    <el-option v-for="g in genes" :key="g.name" :value="g.name" :label="g.name" />
+                  </el-select>
+                </el-radio>
+              </el-radio-group>
+              &nbsp;
+              <el-button size="small" @click="removeItem(childEdit, ii)" type="danger">删除</el-button>
+            </p>
+            <p class="op">
+              <el-button size="small" @click="appendItem(childEditArr)">新增</el-button>
+            </p>
+          </div>
+          <p></p>
+          <p v-for="(edit, j) in editArr.single" :key="`edit` + j">
             {{edit.name}}：
             <el-radio-group :value="edit.mode" @input="v => changeData(edit, 'mode', v)" >
               <el-radio disabled :label="0">
@@ -47,6 +68,7 @@
 <script>
 import * as PIXI from 'pixi.js';
 import {Circle, Rect, Polygon} from './G';
+import Sortable from 'sortablejs'
 
 window.PIXI = PIXI
 
@@ -77,16 +99,36 @@ export default {
     editArr () {
       const sd = this.showData[this.editIndex] || {};
       const arr = Object.keys(sd.attrs || {}).map(k => {
-        const g = sd.genes[k];
+        const g = sd.genes[k] || {};
         const value = sd.attrs[k];
-        return {
-          name: k,
-          mode: g ? 1 : 0,
-          inputValue: g ? '' : value,
-          selectGene: g || {},
+
+        if (Array.isArray(value)) {
+          return value.map((v1, i1) => {
+            const g1 = g[i1];
+            return {
+              name: k,
+              index: i1,
+              mode: g1 ? 1 : 0,
+              inputValue: g1 ? '' : v1,
+              selectGene: g1 || {},
+            };
+          });
+        } else {
+          return {
+            name: k,
+            mode: g ? 1 : 0,
+            inputValue: g ? '' : value,
+            selectGene: g,
+          }
         }
       });
-      return arr;
+      const r = {
+        single: arr.filter((item) => !Array.isArray(item)),
+        multi: arr.filter((item) => Array.isArray(item)),
+      };
+      console.log(r);
+
+      return r;
     },
   },
   methods: {
@@ -133,6 +175,8 @@ export default {
             return new Rect(originData);
           case Circle.name:
             return new Circle(originData);
+          case Polygon.name:
+            return new Polygon(originData);
         }
       }).filter(_ => _);
     },
@@ -152,6 +196,32 @@ export default {
       this.showData = this.showData.filter((_, i) => i !== this.editIndex);
       this.refresh();
     },
+    makeSortable () {
+      const multi = this.editArr.multi;
+      this.$nextTick(() => {
+        multi.forEach(arr => {
+          const name = arr[0].name;
+          const el = this.$refs[name];
+
+          const sort = new Sortable(el[0], {
+            animation: 150,
+            filter: ".op",
+            onUpdate: ({oldIndex, newIndex}) => {
+              const graphics = this.showData[this.editIndex];
+              const arrAttr = graphics.attrs[name];
+
+              let t = arrAttr[oldIndex];
+              arrAttr[oldIndex] = arrAttr[newIndex];
+              arrAttr[newIndex] = t;
+
+              graphics.attrs[name] = arrAttr;
+
+              this.showData = this.showData.slice();
+            },
+          });
+        });
+      });
+    },
     refresh () {
       this.app.stage.removeChildren();
       this.showData.forEach((obj, i) => {
@@ -160,7 +230,9 @@ export default {
         g.interactive = true;
         g.on('mousedown', () => {
           this.editIndex = i;
+          this.makeSortable();
         });
+        console.log(`obj:`, obj);
         let {fill} = obj.getAttrs();
         fill = parseInt(String(fill).replace('#', '0x'));
         g.beginFill(fill, 1);
@@ -179,9 +251,29 @@ export default {
               g.endFill();
             })();
             break;
+          case Polygon:
+            (() => {
+              let {pointers} = obj.getAttrs();
+              g.drawPolygon(pointers);
+              g.endFill();
+            })();
+            break;
           default:
         }
       });
+      this.showData = this.showData.slice();
+    },
+    removeItem (obj, index) {
+      const graphics = this.showData[this.editIndex];
+      graphics.attrs[obj.name].splice(index, 1);
+      this.showData = this.showData.slice();
+    },
+    appendItem (arr) {
+      const obj = arr[0];
+      const graphics = this.showData[this.editIndex];
+
+      graphics.attrs[obj.name].push(0);
+
       this.showData = this.showData.slice();
     },
     changeData(obj, prop, value) {
@@ -189,22 +281,40 @@ export default {
 
       value = isNaN(Number(value)) ? value : Number(value);
 
+      const targetGene = this.genes.filter(g => g.name === value)[0];
+
       switch (prop) {
         case 'mode':
           if (value === 0) {
             delete graphics.genes[obj.name];
           }
+          this.refresh();
           break;
         case 'input':
-          graphics.attrs[obj.name] = value;
-          delete graphics.genes[obj.name];
+          if (Array.isArray(graphics.attrs[obj.name])) {
+            graphics.attrs[obj.name][obj.index] = value;
+
+            if (graphics.genes[obj.name]) {
+              graphics.genes[obj.name][obj.index] = null;
+            }
+          } else {
+            graphics.attrs[obj.name] = value;
+            delete graphics.genes[obj.name];
+          }
           break;
         case 'gene':
-          graphics.genes[obj.name] = this.genes.filter(g => g.name === value)[0];
+          if (Array.isArray(graphics.attrs[obj.name])) {
+            if (!graphics.genes[obj.name]) {
+              graphics.genes[obj.name] = [];
+            }
+            graphics.genes[obj.name][obj.index] = targetGene;
+          } else {
+            graphics.genes[obj.name] = targetGene;
+          }
+          this.refresh();
           break;
         default:
       }
-      this.refresh();
     },
     save () {
       this.isShow = false;
