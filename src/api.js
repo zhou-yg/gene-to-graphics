@@ -30,9 +30,12 @@ export default {
             name: {
               type: 'string',
             },
-            // showData: {
-            //   type: 'object',
-            // },
+            showData: {
+              type: 'array',
+            },
+            category: {
+              type: 'string'
+            },
           },
         },
         trunk: {

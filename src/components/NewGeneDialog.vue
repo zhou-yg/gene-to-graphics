@@ -77,9 +77,17 @@ export default {
     },
   },
   methods: {
-    show (config = {}) {
+    show (config = {
+      id: null,
+      leftGeneValue: 0,
+      leftGeneValueMax: 1,
+      rightGeneValue: 0,
+      rightGeneValueMax: 1,
+      calType: 0,
+      outputType: 0,
+    }) {
       this.isShow = true;
-      Object.assign(this, config)
+      Object.assign(this, config)      
     },
     submit () {
       this.isShow = false;

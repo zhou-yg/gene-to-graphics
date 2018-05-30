@@ -54,76 +54,44 @@
         </el-table>
       </el-tab-pane>
       <el-tab-pane label="基本图库" name="b" >
-        <header class="header">
-          <el-button @click="newGraphics" size="small">新建图形</el-button>
-        </header>
-        <el-table
-          border
-          :data="graphicsList">
-          <el-table-column
-            prop="nameText"
-            label="名称" >
-          </el-table-column>
-          <el-table-column
-            label="操作"
-            width="270px">
-            <template slot-scope="scope">
-              <el-button type="danger" @click="deleteGraphics(scope.row.id)">删除</el-button>
-              <el-button @click="updateGraphics(scope.row.id)">编辑</el-button>
-              <el-button @click="outputGraphics(scope.row.id)">导出</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <Gallery :geneList="geneList"/>
       </el-tab-pane>
       <el-tab-pane label="组成图形" name="c" >
         <Trunk />
       </el-tab-pane>
     </el-tabs>
     <NewGeneDialog ref="ngd" @submit="settingSubmit"/>
-    <GraphicsDialog ref="gd" :genes="geneList" @submit="submitGraphics" />
   </div>
 </template>
 
 <script>
 import NewGeneDialog from './components/NewGeneDialog.vue'
-import GraphicsDialog from './components/GraphicsDialog.vue'
 import Gene from './components/Gene';
 import Trunk from './components/Trunk.vue';
+import Gallery from './components/Gallery.vue';
 
 export default {
   components: {
     NewGeneDialog,
-    GraphicsDialog,
     Trunk,
+    Gallery,
   },
   name: 'app',
   data () {
     return {
       activeName: 'a',
       geneList: [],
-      graphicsList: [],
       trunkList: [],
     };
   },
   mounted () {
     this.getGeneList();
-    this.getGraphicsList();
     this.getTrunkList();
   },
   methods: {
     getGeneList () {
       this.$api.sms.gene('find').then(res => {
         this.geneList = [].concat(res.data).map(obj => new Gene(obj));
-      });
-    },
-    getGraphicsList () {
-      this.$api.sms.graphics('find').then(res => {
-        this.graphicsList = [].concat(res.data).map(obj => ({
-          ...obj,
-          id: obj._id,
-          nameText: decodeURIComponent(obj.name),
-          showData: this.$refs.gd.initShowData(obj.showData || []),
-        }));
       });
     },
     getTrunkList () {
@@ -134,22 +102,6 @@ export default {
     newGene () {
       this.$refs.ngd.show();
     },
-    newGraphics () {
-      this.$prompt('请输入，图形名称', '新建图形', {
-        confirmButtonText: '保存',
-        cancelButtonText: '取消',
-        inputPattern: /[\w\W]+/,
-        inputErrorMessage: '请输入名称',
-      }).then(({value}) => {
-        this.$api.sms.graphics('insertOne', {
-          name: value,
-        }).then(res => {
-          this.getGraphicsList();
-        });
-      }).catch(e => {
-
-      });
-    },
     updateGene(id) {
       const find = this.geneList.filter(obj => obj.id === id)[0];
       this.$refs.ngd.show(find);
@@ -159,63 +111,9 @@ export default {
         this.getGeneList();
       });
     },
-    updateGraphics (id) {
-      const graphicsOne = this.graphicsList.filter(g => g.id === id)[0];
-      this.$refs.gd.show({
-        id,
-        showData: graphicsOne.showData || [],
-      });
-    },
-    deleteGraphics (id) {
-      this.$api.sms.graphics('deleteOne', {_id: id}).then(res => {
-        this.getGraphicsList();
-      });
-    },
-    outputGraphics (id) {
-      const graphicsOne = this.graphicsList.filter(g => g.id === id)[0];
-      const sd = graphicsOne.showData;
 
-      const outputData = sd.map(g => g.output());
-
-      this.$api.sms.trunk('insertOne', {
-        name: `${graphicsOne.nameText}-${Date.now()}`,
-        g: outputData,
-      }).then(res => {
-        this.getTrunkList();
-      });
-    },
     settingSubmit () {
       this.getGeneList()
-    },
-    submitGraphics () {
-      this.getGraphicsList();
-    },
-    renameTrunk (id) {
-      this.$prompt('新的图形名称', '重命名', {
-        confirmButtonText: '保存',
-        cancelButtonText: '取消',
-        inputPattern: /[\w\W]+/,
-        inputErrorMessage: '请输入名称',
-      }).then(({value}) => {
-        this.$api.sms.trunk('updateOne', {
-          _id: id,
-          _doc: {
-            $set: {
-              name: value,
-            },
-          },
-        }).then(res => {
-          this.getTrunkList();
-        });
-      }).catch(e => {
-      });
-    },
-    deleteTrunk (id) {
-      this.$api.sms.trunk('deleteOne', {
-        _id: id,
-      }).then(res => {
-        this.getTrunkList();
-      });
     },
   },
 }
