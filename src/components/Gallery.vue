@@ -65,7 +65,8 @@ export default {
           category = 'other';
         }
         if (!categoryMap[category]) {
-          throw new Error(`${category} not found map`);
+          // throw new Error(`${category} not found map`);
+          return;
         }
         if (!r[category]) {
           r[category] = {
@@ -86,21 +87,52 @@ export default {
     this.getGraphicsList();
   },
   methods: {
-    newGraphics () {
-      this.$prompt('请输入，图形名称', '新建图形', {
+    newGraphics (h) {
+      let name;
+      let category;
+      const prompt = (h) => (<p key={Date.now()}>
+          <el-input placeholder="名字" onInput={v => name = v}/>
+          <span>&nbsp;</span>
+          <el-input placeholder="分类" onInput={v => category = v}/>
+        </p>);
+
+      this.$msgbox({
+        key: Date.now(),
+        title: '新建图形',
         confirmButtonText: '保存',
         cancelButtonText: '取消',
-        inputPattern: /[\w\W]+/,
-        inputErrorMessage: '请输入名称',
-      }).then(({value}) => {
-        this.$api.sms.graphics('insertOne', {
-          name: value,
-        }).then(res => {
-          this.getGraphicsList();
-        });
-      }).catch(e => {
-
+        message: prompt(this.$createElement),
+        beforeClose: (action, instance, done) => {
+          if (action === 'confirm') {
+            // instance.confirmButtonLoading = true;
+            // instance.confirmButtonText = '执行中...';
+            this.$api.sms.graphics('insertOne', {
+              name,
+              category,
+            }).then(res => {
+              done();
+              this.getGraphicsList();
+            });
+          } else {
+            done();
+          }
+        },
       });
+
+      // this.$prompt('请输入，图形名称', '新建图形', {
+      //   confirmButtonText: '保存',
+      //   cancelButtonText: '取消',
+      //   inputPattern: /[\w\W]+/,
+      //   inputErrorMessage: '请输入名称',
+      // }).then(({value}) => {
+      //   this.$api.sms.graphics('insertOne', {
+      //     name: value,
+      //   }).then(res => {
+      //     this.getGraphicsList();
+      //   });
+      // }).catch(e => {
+      //
+      // });
     },
 
     getGraphicsList () {

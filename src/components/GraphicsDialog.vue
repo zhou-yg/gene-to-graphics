@@ -15,7 +15,21 @@
           <li @click="deleteOne" style="color:red;" >删除</li>
         </ul>
       </header>
-      <header v-if="editArr.single > 0 || editArr.multi.length > 0">
+
+      <div class="sprite-list">
+          精灵：
+          <ul>
+            <li v-for="(obj, si) in spriteList" @click="editIndex = si" :class="{
+                selected: editIndex === si,
+              }">{{obj.type}}({{si}})</li>
+
+            <li @click="cloneCurrent">
+              复制
+            </li>
+          </ul>
+      </div>
+
+      <header v-if="editArr.single.length > 0 || editArr.multi.length > 0">
         属性：
         <div class="properties">
           <div v-for="(childEditArr, i) in editArr.multi" :key="`multiEdit` + i" :ref="childEditArr[0].name" >
@@ -42,10 +56,10 @@
           <p v-for="(edit, j) in editArr.single" :key="`edit` + j">
             {{edit.name}}：
             <el-radio-group :value="edit.mode" @input="v => changeData(edit, 'mode', v)" >
-              <el-radio disabled :label="0">
+              <el-radio disabled :label="0" :key="`edit-1` + j">
                 <el-input :value="edit.inputValue" @input="v => changeData(edit, 'input', v)" @blur="refresh" />
               </el-radio>
-              <el-radio disabled :label="1">
+              <el-radio disabled :label="1" :key="`edit-2` + j" >
                 <el-select :value="edit.selectGene.name" @input="v => changeData(edit, 'gene', v)">
                   <el-option v-for="g in genes" :key="g.name" :value="g.name" :label="g.name" />
                 </el-select>
@@ -68,7 +82,8 @@
 <script>
 import * as PIXI from 'pixi.js';
 import {Circle, Rect, Polygon} from './G';
-import Sortable from 'sortablejs'
+import Sortable from 'sortablejs';
+import cloneDeep from 'lodash/cloneDeep';
 
 window.PIXI = PIXI
 
@@ -96,10 +111,16 @@ export default {
     });
   },
   computed: {
+    spriteList () {
+      return this.showData.map(obj => {
+        return obj;
+      });
+    },
     editArr () {
       const sd = this.showData[this.editIndex] || {};
+
       const arr = Object.keys(sd.attrs || {}).map(k => {
-        const g = sd.genes[k] || {};
+        const g = sd.genes[k];
         const value = sd.attrs[k];
 
         if (Array.isArray(value)) {
@@ -118,7 +139,7 @@ export default {
             name: k,
             mode: g ? 1 : 0,
             inputValue: g ? '' : value,
-            selectGene: g,
+            selectGene: g || {},
           }
         }
       });
@@ -132,6 +153,12 @@ export default {
     },
   },
   methods: {
+    cloneCurrent () {
+      if (this.editIndex >= 0) {
+        this.showData.push(cloneDeep(this.showData[this.editIndex]));
+        this.editIndex = this.showData.length - 1;
+      }
+    },
     show (config = {}) {
       this.isShow = true;
       config.showData = this.initShowData(config.showData);
@@ -229,6 +256,7 @@ export default {
         this.app.stage.addChild(g);
         g.interactive = true;
         g.on('mousedown', () => {
+          console.log(i);
           this.editIndex = i;
           this.makeSortable();
         });
@@ -385,6 +413,22 @@ export default {
   cursor: pointer;
   user-select:none;
 }
+.sprite-list ul {
+  display: inline-block;
+}
+.sprite-list ul li.selected{
+  background-color: green;
+  border-color: green;
+  color: white;
+}
+.sprite-list ul li{
+  margin: 0 5px;
+  padding: 0 5px;
+  border: 1px solid #999;
+  display: inline-block;
+  cursor: pointer;
+}
+
 .graphics-dialog header li:hover {
   background-color: #999;
   color: #fff;
@@ -407,4 +451,5 @@ export default {
   width: 100%;
   height: 100%;
 }
+
 </style>
