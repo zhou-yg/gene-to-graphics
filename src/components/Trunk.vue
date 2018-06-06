@@ -15,6 +15,16 @@
         label="名称" >
       </el-table-column>
       <el-table-column
+        width="150px"
+        label="层级" >
+        <template slot-scope="scope">
+          <el-input
+            :value="scope.row.index"
+            @input="v => changeProp(scope.row._id, 'index', v)"
+            @blur="realUpdate(scope.row._id)" />
+        </template>
+      </el-table-column>
+      <el-table-column
         label="操作"
         width="250px">
         <template slot-scope="scope">
@@ -46,20 +56,47 @@ export default {
         backgroundColor: 0xffffff,
         forceCanvas: true,
         view: this.$refs.canvas,
-        width: 320,
-        height: 568,
+        width: 320 * 2,
+        height: 568 * 2,
       });
     });
   },
   methods: {
     getTrunkList () {
       this.$api.sms.trunk('find').then(res => {
-        this.trunkList = [].concat(res.data);
+        this.trunkList = [].concat(res.data).sort((p, n) => n.index > p.index ? -1 : 1);
         this.showPreview();
       });
     },
     showPreview () {
       this.app.stage.addChild(trunkToPixi(this.trunkList));
+    },
+    changeProp (id, prop, v) {
+      this.trunkList = this.trunkList.map(obj => {
+        if (obj._id === id) {
+          obj[prop] = v;
+        }
+        return obj;
+      });
+    },
+    realUpdate (id) {
+      this.trunkList.forEach(obj => {
+        if (obj._id === id) {
+          this.updateTrunkOne(id, {
+            index: obj.index,
+          });
+        }
+      });
+    },
+    updateTrunkOne (id, setObj) {
+      this.$api.sms.trunk('updateOne', {
+        _id: id,
+        _doc: {
+          $set: setObj,
+        },
+      }).then(res => {
+        this.getTrunkList();
+      });
     },
     renameTrunk (id) {
       this.$prompt('新的图形名称', '重命名', {
@@ -68,17 +105,9 @@ export default {
         inputPattern: /[\w\W]+/,
         inputErrorMessage: '请输入名称',
       }).then(({value}) => {
-        this.$api.sms.trunk('updateOne', {
-          _id: id,
-          _doc: {
-            $set: {
-              name: value,
-            },
-          },
-        }).then(res => {
-          this.getTrunkList();
+        this.updateTrunkOne(id, {
+          name: value,
         });
-      }).catch(e => {
       });
     },
     deleteTrunk (id) {
@@ -103,5 +132,9 @@ export default {
   width: 320px;
   height: 568px;
   display: inline-block;
+}
+.preview > canvas{
+  width: 100%;
+  height: 100%;
 }
 </style>

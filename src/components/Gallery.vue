@@ -66,12 +66,11 @@ export default {
         }
         if (!categoryMap[category]) {
           // throw new Error(`${category} not found map`);
-          return;
         }
         if (!r[category]) {
           r[category] = {
             category,
-            name: categoryMap[category],
+            name: categoryMap[category] || 'other',
             graphicsList: [],
           }
         }
@@ -166,8 +165,9 @@ export default {
       this.$api.sms.trunk('insertOne', {
         name: `${graphicsOne.nameText}-${Date.now()}`,
         g: outputData,
+        index: 0,
       }).then(res => {
-        this.getTrunkList();
+        // this.getTrunkList();
       });
     },
     submitGraphics () {
