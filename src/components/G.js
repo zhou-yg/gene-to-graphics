@@ -1,4 +1,4 @@
-export class G {
+class G {
   constructor (initial) {
     this.type = initial.type || '';
     this.attrs = initial.attrs || {};
@@ -30,7 +30,7 @@ export class G {
   }
 }
 
-export class Polygon extends G {
+class Polygon extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Polygon.name;
@@ -43,7 +43,7 @@ export class Polygon extends G {
   }
 }
 
-export class Rect extends G {
+class Rect extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Rect.name;
@@ -59,7 +59,7 @@ export class Rect extends G {
   }
 }
 
-export class Circle extends G {
+class Circle extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Circle.name;
@@ -73,3 +73,8 @@ export class Circle extends G {
     }
   }
 }
+
+exports.G = G;
+exports.Polygon = Polygon;
+exports.Rect = Rect;
+exports.Circle = Circle;

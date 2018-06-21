@@ -1,5 +1,5 @@
 {
-  "name": "webapp",
+  "name": "gene-to-graphics",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,10 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "files": [
+    "src/components/G.js",
+    "src/components/Gene.js"
+  ],
   "dependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.2.2",
