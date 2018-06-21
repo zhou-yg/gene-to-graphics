@@ -1,6 +1,6 @@
 {
   "name": "gene-to-graphics",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "scripts": {
     "serve": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
@@ -11,15 +11,16 @@
     "src/components/Gene.js"
   ],
   "dependencies": {
+
+  },
+  "devDependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.2.2",
     "pixi.js": "^4.7.3",
     "raphael": "^2.2.7",
     "simple-mongo-server": "^1.0.2",
     "sortablejs": "^1.7.0",
-    "vue": "^2.5.13"
-  },
-  "devDependencies": {
+    "vue": "^2.5.13",
     "@vue/cli-plugin-babel": "^3.0.0-beta.6",
     "@vue/cli-plugin-eslint": "^3.0.0-beta.6",
     "@vue/cli-service": "^3.0.0-beta.6",

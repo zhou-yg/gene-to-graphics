@@ -74,6 +74,37 @@ class Circle extends G {
   }
 }
 
+function normalizeGraphics (graphicsData, genes) {
+
+  function initShowData (d) {
+    return d.map(originData => {
+      return {
+        ...originData,
+        genes: Object.keys(originData.genes).map(prop => {
+          const geneName = originData.genes[prop]
+
+          if (!geneName) {
+            return {};
+          }
+          return {
+            [prop]: genes.filter(gen => gen.name === prop)[0],
+          }
+        }).reduce((p, c) => Object.assign(p, c), {}),
+      }
+    });
+  }
+
+  const graphicsList = [].concat(graphicsData).map(obj => ({
+    ...obj,
+    id: obj._id,
+    nameText: decodeURIComponent(obj.name),
+    showData: initShowData(obj.showData || []),
+  }));
+
+  return graphicsList
+}
+
+exports.normalizeGraphics = normalizeGraphics;
 exports.G = G;
 exports.Polygon = Polygon;
 exports.Rect = Rect;
