@@ -10,9 +10,7 @@
     "src/components/G.js",
     "src/components/Gene.js"
   ],
-  "dependencies": {
-
-  },
+  "dependencies": {},
   "devDependencies": {
     "axios": "^0.18.0",
     "element-ui": "^2.2.2",
@@ -34,7 +32,9 @@
     "presets": [
       "@vue/app"
     ],
-    "plugins": ["transform-vue-jsx"]
+    "plugins": [
+      "transform-vue-jsx"
+    ]
   },
   "eslintConfig": {
     "root": true,
