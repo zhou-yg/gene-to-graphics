@@ -66,7 +66,7 @@
 
 <script>
 import NewGeneDialog from './components/NewGeneDialog.vue'
-import Gene from './components/Gene';
+import Gene from './lib/Gene';
 import Trunk from './components/Trunk.vue';
 import Gallery from './components/Gallery.vue';
 

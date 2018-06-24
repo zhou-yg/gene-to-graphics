@@ -1,3 +1,4 @@
+import  * as PIXI from 'pixi.js';
 import Vue from 'vue'
 import App from './App.vue'
 import e from 'element-ui'

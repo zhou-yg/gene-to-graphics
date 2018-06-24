@@ -1,4 +1,4 @@
-const pick = require('lodash/pick');
+import pick from 'lodash/pick';
 
 const calMap = ['加法', '减法'];
 const outputMap = ['数字', '颜色'];
@@ -25,7 +25,7 @@ function combineColors (hex1, hex2) {
     return ((r1 + r2)/2).toString(16) + ((g1 + g2)/2).toString(16) + ((b1 + b2)/2).toString(16);
 }
 
-module.exports = class Gene {
+export default class Gene {
   constructor (obj) {
     var name;
     try {

@@ -1,5 +1,4 @@
 import {Circle, Rect} from './G';
-import * as PIXI from 'pixi.js';
 
 export default function trunkToPixi(data) {
   const graphics = [].concat(data).map(({g}) => {

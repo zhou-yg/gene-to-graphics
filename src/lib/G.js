@@ -1,4 +1,4 @@
-class G {
+export class G {
   constructor (initial) {
     this.type = initial.type || '';
     this.attrs = initial.attrs || {};
@@ -30,7 +30,7 @@ class G {
   }
 }
 
-class Polygon extends G {
+export class Polygon extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Polygon.name;
@@ -43,7 +43,7 @@ class Polygon extends G {
   }
 }
 
-class Rect extends G {
+export class Rect extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Rect.name;
@@ -59,7 +59,7 @@ class Rect extends G {
   }
 }
 
-class Circle extends G {
+export class Circle extends G {
   constructor (initial = {}) {
     super(initial);
     this.type = Circle.name;
@@ -74,11 +74,11 @@ class Circle extends G {
   }
 }
 
-function normalizeGraphics (graphicsData, genes) {
+export function normalizeGraphics (graphicsData, genes) {
 
   function initShowData (d) {
     return d.map(originData => {
-      return {
+      originData = {
         ...originData,
         genes: Object.keys(originData.genes).map(prop => {
           const geneName = originData.genes[prop]
@@ -91,7 +91,16 @@ function normalizeGraphics (graphicsData, genes) {
           }
         }).reduce((p, c) => Object.assign(p, c), {}),
       }
-    });
+
+      switch (originData.type) {
+        case Rect.name:
+          return new Rect(originData);
+        case Circle.name:
+          return new Circle(originData);
+        case Polygon.name:
+          return new Polygon(originData);
+      }
+    }).filter(_ => _);
   }
 
   const graphicsList = [].concat(graphicsData).map(obj => ({
@@ -131,9 +140,11 @@ function normalizeGraphics (graphicsData, genes) {
 
   return r;
 }
-
-exports.normalizeGraphics = normalizeGraphics;
-exports.G = G;
-exports.Polygon = Polygon;
-exports.Rect = Rect;
-exports.Circle = Circle;
+//
+// module.exports = {
+//   normalizeGraphics,
+//   G,
+//   Polygon,
+//   Rect,
+//   Circle,
+// };

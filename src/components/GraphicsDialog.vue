@@ -19,7 +19,7 @@
       <div class="sprite-list">
           精灵：
           <ul>
-            <li v-for="(obj, si) in spriteList" @click="editIndex = si" :class="{
+            <li v-for="(obj, si) in spriteList" @click="editIndex = si" :key="si" :class="{
                 selected: editIndex === si,
               }">{{obj.type}}({{si}})</li>
 
@@ -81,7 +81,7 @@
 
 <script>
 import * as PIXI from 'pixi.js';
-import {Circle, Rect, Polygon} from './G';
+import {Circle, Rect, Polygon} from '../lib/G';
 import Sortable from 'sortablejs';
 import cloneDeep from 'lodash/cloneDeep';
 
@@ -230,7 +230,7 @@ export default {
           const name = arr[0].name;
           const el = this.$refs[name];
 
-          const sort = new Sortable(el[0], {
+          new Sortable(el[0], {
             animation: 150,
             filter: ".op",
             onUpdate: ({oldIndex, newIndex}) => {

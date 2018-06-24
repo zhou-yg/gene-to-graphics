@@ -38,7 +38,7 @@
 
 <script>
 import * as PIXI from 'pixi.js';
-import trunkToPixi from './trunkToPixi';
+import trunkToPixi from '../lib/trunkToPixi';
 
 export default {
   components: {
