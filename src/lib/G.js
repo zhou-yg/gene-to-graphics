@@ -74,7 +74,38 @@ export class Circle extends G {
   }
 }
 
+export function categoryGraphics (graphicsList) {
+  var r = {};
+  const categoryMap = {
+    other: '其它',
+    eye: '眼',
+    head: '头',
+    horn: '角',
+  };
+  graphicsList.map(obj => {
+    var category = obj.category;
+    if (!category) {
+      category = 'other';
+    }
+    if (!categoryMap[category]) {
+      // throw new Error(`${category} not found map`);
+    }
+    if (!r[category]) {
+      r[category] = {
+        category,
+        name: categoryMap[category] || 'other',
+        graphicsList: [],
+      }
+    }
+    var list = r[category];
+    list.graphicsList.push(obj);
+  });
+  r = Object.values(r);
+
+  return r;
+}
 export function normalizeGraphics (graphicsData, genes) {
+
 
   function initShowData (d) {
     return d.map(originData => {
@@ -110,35 +141,7 @@ export function normalizeGraphics (graphicsData, genes) {
     showData: initShowData(obj.showData || []),
   }));
 
-
-  var r = {};
-  const categoryMap = {
-    other: '其它',
-    eye: '眼',
-    head: '头',
-    horn: '角',
-  };
-  graphicsList.map(obj => {
-    var category = obj.category;
-    if (!category) {
-      category = 'other';
-    }
-    if (!categoryMap[category]) {
-      // throw new Error(`${category} not found map`);
-    }
-    if (!r[category]) {
-      r[category] = {
-        category,
-        name: categoryMap[category] || 'other',
-        graphicsList: [],
-      }
-    }
-    var list = r[category];
-    list.graphicsList.push(obj);
-  });
-  r = Object.values(r);
-
-  return r;
+  return graphicsList;
 }
 //
 // module.exports = {
