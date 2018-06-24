@@ -1,6 +1,6 @@
 {
   "name": "gene-to-graphics",
-  "version": "1.1.0",
+  "version": "1.1.3",
   "scripts": {
     "serve": "BN=dev1 vue-cli-service serve --open",
     "build": "vue-cli-service build",

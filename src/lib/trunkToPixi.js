@@ -1,23 +1,21 @@
-import {Circle, Rect} from './G';
+import {Circle, Rect, Polygon} from './G';
 
 export default function trunkToPixi(data) {
-  const graphics = [].concat(data).map(({g}) => {
-    return g.map(g => {
+  const graphics = [].concat(data).map(arr => {
+    return arr.map(g => {
+      const superConfig = {
+        type: g.type,
+        attrs: {
+          ...g,
+        },
+      };
       switch(g.type) {
         case Rect.name:
-          return new Rect({
-            type: g.type,
-            attrs: {
-              ...g,
-            },
-          });
+          return new Rect(superConfig);
         case Circle.name:
-          return new Circle({
-            type: g.type,
-            attrs: {
-              ...g,
-            },
-          });
+          return new Circle(superConfig);
+        case Polygon.name:
+          return new Polygon(superConfig);
       }
     });
   });

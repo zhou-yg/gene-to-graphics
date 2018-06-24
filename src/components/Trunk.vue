@@ -69,7 +69,7 @@ export default {
       });
     },
     showPreview () {
-      this.app.stage.addChild(trunkToPixi(this.trunkList));
+      this.app.stage.addChild(trunkToPixi(this.trunkList.map(obj => obj.g)));
     },
     changeProp (id, prop, v) {
       this.trunkList = this.trunkList.map(obj => {
