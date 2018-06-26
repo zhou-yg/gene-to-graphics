@@ -46,6 +46,14 @@ export default {
             },
           },
         },
+        monster: {
+          method: 'POST',
+          properties: {
+            data: {
+              type: 'array',
+            },
+          },
+        },
       }, {
         host: 'http://mongo.nomiwan.com/'
       }),

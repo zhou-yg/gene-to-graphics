@@ -7,6 +7,8 @@
       </div>
     </div>
 
+    <br/>
+
     <el-table
       border
       :data="trunkList">
@@ -47,6 +49,7 @@ export default {
   data () {
     return {
       trunkList: [],
+      monsterId: '5b2f39b1637c761822ae75cb',
     };
   },
   mounted () {
@@ -62,6 +65,16 @@ export default {
     });
   },
   methods: {
+    newId () {
+      this.$api.sms.monster('find', {
+        _id: this.monsterId,
+      }).then(res => {
+        if (res.success && res.data) {
+          this.trunkList = [].concat(res.data.data).sort((p, n) => n.index > p.index ? -1 : 1);
+          this.showPreview();
+        }
+      });
+    },
     getTrunkList () {
       this.$api.sms.trunk('find').then(res => {
         this.trunkList = [].concat(res.data).sort((p, n) => n.index > p.index ? -1 : 1);
@@ -69,7 +82,7 @@ export default {
       });
     },
     showPreview () {
-      this.app.stage.addChild(trunkToPixi(this.trunkList.map(obj => obj.g)));
+      this.app.stage.addChild(trunkToPixi(this.trunkList.map(obj => obj.g || obj.showData)));
     },
     changeProp (id, prop, v) {
       this.trunkList = this.trunkList.map(obj => {
